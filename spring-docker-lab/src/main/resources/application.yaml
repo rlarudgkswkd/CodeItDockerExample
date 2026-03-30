@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: docker-lab
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  name: docker-lab
+  version: 1.0.0
+  environment: dev

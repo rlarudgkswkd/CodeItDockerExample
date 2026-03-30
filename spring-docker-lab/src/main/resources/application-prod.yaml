@@ -1,0 +1,124 @@
+# =========================================
+# 서버 설정
+# =========================================
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+  # 톰캣 성능 최적화
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 20000
+    keep-alive-timeout: 20000
+    max-keep-alive-requests: 100
+
+
+# =========================================
+# Spring 설정
+# =========================================
+spring:
+
+  # 데이터베이스 설정
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/menudb}
+    username: ${SPRING_DATASOURCE_USERNAME:ohgiraffers}
+    password: ${SPRING_DATASOURCE_PASSWORD:ohgiraffers}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${HIKARI_MIN_IDLE:5}
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # JPA 설정
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  # 세션 설정 (보안)
+  session:
+    timeout: 1800s
+
+  # HTTP 압축 (성능)
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  web:
+    error:
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+
+
+# =========================================
+# 로깅 설정
+# =========================================
+logging:
+  level:
+    root: info
+    com.ohgiraffers.dockerbuild: info
+    org.hibernate.SQL: warn
+
+  file:
+    name: /app/logs/application.log
+
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+
+# =========================================
+# Actuator (모니터링 + 보안)
+# =========================================
+management:
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: always
+
+    # 민감 정보 비활성화
+    env:
+      enabled: false
+    configprops:
+      enabled: false
+
+  # 관리 포트 분리
+  server:
+    port: 9090
+
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+
+
+# =========================================
+# 애플리케이션 정보
+# =========================================
+info:
+  app:
+    name: ${APP_NAME:cafe-pos-system}
+    version: ${APP_VERSION:1.0.0}
+    environment: production

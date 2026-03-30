@@ -1,7 +1,7 @@
 # 1. 베이스 이미지 선택
 # amazoncorretto:17 - 자바 17 JDK 포함
 # JDK를 사용하는 이유: 일부 라이브러리에서 컴파일 도구가 필요할 수 있음
-FROM amazoncorretto:17
+FROM amazoncorretto:17-alpine
 
 # 2. 컨테이너 메타데이터 설정(선택사항)
 # 이미지 작성자, 설명, 버전 등의 정보를 포함

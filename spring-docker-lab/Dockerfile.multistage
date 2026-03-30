@@ -1,0 +1,32 @@
+FROM amazoncorretto:17.0.18-alpine3.23 AS builder
+
+WORKDIR /app
+
+COPY gradle ./gradle
+COPY gradlew ./
+COPY *.gradle ./
+COPY gradle.properties* ./
+
+RUN chmod +x gradlew
+RUN ./gradlew dependencies --no-daemon
+
+COPY src ./src
+RUN ./gradlew build -x test --no-daemon
+
+# ==========================
+
+FROM amazoncorretto:17.0.18-alpine3.23
+
+WORKDIR /app
+
+RUN addgroup -S spring && adduser -S spring -G spring
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+USER spring
+
+EXPOSE 8080
+
+HEALTHCHECK CMD wget --spider -q http://localhost:8080/actuator/health || exit 1
+
+CMD ["java", "-jar", "app.jar"]
