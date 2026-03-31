@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: compose-postgres
+    environment:
+      POSTGRES_DB: menudb
+      POSTGRES_USER: menuuser
+      POSTGRES_PASSWORD: menupass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U menuuser -d menudb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: compose-web
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
